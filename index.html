@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمتي - متتبع الوسائط الشخصي</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts (Tajawal for Arabic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles and Tailwind Configuration -->
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        /* Custom scrollbar for a better look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Style for the active tab */
+        .tab-active {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        /* Simple transition for UI elements */
+        .transition-all {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 md:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white">قائمتي</h1>
+            <p class="text-gray-400 mt-2">متتبع الوسائط الشخصي الخاص بك</p>
+        </header>
+
+        <!-- Category Tabs -->
+        <div class="mb-6">
+            <div class="border-b border-gray-700">
+                <nav id="category-tabs" class="-mb-px flex space-x-4 space-x-reverse overflow-x-auto pb-2" aria-label="Tabs">
+                    <!-- Tabs will be dynamically inserted here -->
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Controls: Search and Add Button -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="relative w-full md:w-1/3">
+                <input type="text" id="search-input" placeholder="ابحث في القائمة الحالية..." class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+            </div>
+            <button id="add-item-btn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all flex items-center justify-center gap-2">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                إضافة عمل جديد
+            </button>
+        </div>
+
+        <!-- Media Items Grid -->
+        <div id="items-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+            <!-- Media items will be dynamically inserted here -->
+        </div>
+        <div id="empty-state" class="text-center py-16 text-gray-500 hidden">
+            <p class="text-xl">لم تقم بإضافة أي أعمال في هذا القسم بعد.</p>
+            <p>انقر على "إضافة عمل جديد" للبدء!</p>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden transition-all">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <form id="item-form">
+                <input type="hidden" id="item-id">
+                <h2 id="modal-title" class="text-2xl font-bold mb-6 text-white">إضافة عمل جديد</h2>
+                
+                <!-- Form Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Name -->
+                    <div>
+                        <label for="item-name" class="block mb-2 text-sm font-medium text-gray-300">الاسم</label>
+                        <input type="text" id="item-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <!-- Category -->
+                    <div>
+                        <label for="item-category" class="block mb-2 text-sm font-medium text-gray-300">القسم</label>
+                        <select id="item-category" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <!-- Options will be dynamically inserted -->
+                        </select>
+                    </div>
+                    <!-- Status -->
+                    <div>
+                        <label for="item-status" class="block mb-2 text-sm font-medium text-gray-300">الحالة</label>
+                        <select id="item-status" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="جاري">جاري</option>
+                            <option value="مكتمل">مكتمل</option>
+                            <option value="متوقف">متوقف</option>
+                            <option value="متروك">متروك</option>
+                            <option value="للمشاهدة">للمشاهدة/للقراءة</option>
+                        </select>
+                    </div>
+                    <!-- Progress -->
+                    <div>
+                        <label for="item-progress" class="block mb-2 text-sm font-medium text-gray-300">التقدم (آخر حلقة/فصل)</label>
+                        <input type="text" id="item-progress" placeholder="مثال: الفصل 120" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <!-- Image URL -->
+                    <div class="md:col-span-2">
+                        <label for="item-image" class="block mb-2 text-sm font-medium text-gray-300">رابط الصورة</label>
+                        <input type="url" id="item-image" placeholder="https://example.com/image.jpg" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label for="item-description" class="block mb-2 text-sm font-medium text-gray-300">الوصف</label>
+                        <textarea id="item-description" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <!-- Rating -->
+                    <div class="md:col-span-2">
+                        <label class="block mb-2 text-sm font-medium text-gray-300">التقييم</label>
+                        <div id="item-rating-stars" class="flex items-center" dir="ltr">
+                            <!-- Stars will be dynamically inserted -->
+                        </div>
+                        <input type="hidden" id="item-rating" value="0">
+                    </div>
+                    <!-- Important Moments -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-lg font-semibold mb-2 text-white">لحظات مهمة</h3>
+                        <div id="moments-container" class="space-y-2">
+                            <!-- Dynamic moment fields will be added here -->
+                        </div>
+                        <button type="button" id="add-moment-btn" class="mt-2 text-blue-500 hover:text-blue-400 text-sm">+ إضافة لحظة</button>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end gap-4 mt-8">
+                    <button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-all">إلغاء</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-all">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Details View Modal -->
+    <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden transition-all">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div id="details-content" class="p-6">
+                <!-- Details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURATION ---
+        const categories = {
+            'روايات': 'روايات',
+            'مانجا': 'مانجا/مانهوا',
+            'انمي': 'انمي',
+            'فيلم': 'فيلم',
+            'مسلسل': 'مسلسل',
+            'كتاب': 'كتاب',
+            'آخر': 'آخر'
+        };
+
+        // --- STATE MANAGEMENT ---
+        let mediaList = JSON.parse(localStorage.getItem('mediaList')) || [];
+        let currentCategory = Object.keys(categories)[0];
+        let currentSearchTerm = '';
+
+        // --- DOM ELEMENTS ---
+        const categoryTabsContainer = document.getElementById('category-tabs');
+        const itemsGrid = document.getElementById('items-grid');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('search-input');
+        
+        // Modals
+        const formModal = document.getElementById('form-modal');
+        const detailsModal = document.getElementById('details-modal');
+        
+        // Form elements
+        const itemForm = document.getElementById('item-form');
+        const modalTitle = document.getElementById('modal-title');
+        const itemIdInput = document.getElementById('item-id');
+        const itemNameInput = document.getElementById('item-name');
+        const itemCategorySelect = document.getElementById('item-category');
+        const itemStatusSelect = document.getElementById('item-status');
+        const itemProgressInput = document.getElementById('item-progress');
+        const itemImageInput = document.getElementById('item-image');
+        const itemDescriptionTextarea = document.getElementById('item-description');
+        const itemRatingInput = document.getElementById('item-rating');
+        const ratingStarsContainer = document.getElementById('item-rating-stars');
+        const momentsContainer = document.getElementById('moments-container');
+
+        // --- FUNCTIONS ---
+
+        // Save data to localStorage
+        const saveData = () => {
+            localStorage.setItem('mediaList', JSON.stringify(mediaList));
+        };
+
+        // Render category tabs
+        const renderTabs = () => {
+            categoryTabsContainer.innerHTML = '';
+            for (const key in categories) {
+                const tab = document.createElement('a');
+                tab.href = '#';
+                tab.dataset.category = key;
+                tab.className = `whitespace-nowrap py-2 px-3 font-medium text-sm rounded-t-lg border-b-2 transition-all ${currentCategory === key ? 'tab-active' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'}`;
+                tab.textContent = categories[key];
+                categoryTabsContainer.appendChild(tab);
+            }
+        };
+        
+        // Render rating stars (for both form and display)
+        const renderStars = (container, rating, isInteractive = false) => {
+            container.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const star = document.createElement('span');
+                star.innerHTML = `<svg class="w-6 h-6 cursor-pointer" fill="${i <= rating ? '#facc15' : 'none'}" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.975-2.888a1 1 0 00-1.176 0l-3.975 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.05 10.1c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.95-.69L11.049 2.927z"></path></svg>`;
+                star.dataset.value = i;
+                if (isInteractive) {
+                    star.onclick = () => {
+                        itemRatingInput.value = i;
+                        renderStars(container, i, true);
+                    };
+                }
+                container.appendChild(star);
+            }
+        };
+
+        // Render media items
+        const renderItems = () => {
+            itemsGrid.innerHTML = '';
+            const filteredList = mediaList
+                .filter(item => item.category === currentCategory)
+                .filter(item => item.name.toLowerCase().includes(currentSearchTerm.toLowerCase()));
+
+            if (filteredList.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filteredList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all group';
+                card.dataset.id = item.id;
+
+                const ratingHtml = item.rating > 0 ? `<div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                    <span>${item.rating}</span>
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>` : '';
+
+                card.innerHTML = `
+                    <div class="relative">
+                        <img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full h-48 sm:h-64 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all"></div>
+                        ${ratingHtml}
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm text-white truncate">${item.name}</h3>
+                        <p class="text-xs text-gray-400">${item.status}</p>
+                    </div>
+                `;
+                card.onclick = () => showDetailsModal(item.id);
+                itemsGrid.appendChild(card);
+            });
+        };
+        
+        // Open/Close Modals
+        const openModal = (modal) => modal.classList.remove('hidden');
+        const closeModal = (modal) => modal.classList.add('hidden');
+
+        // Show Add/Edit Form Modal
+        const showFormModal = (id = null) => {
+            itemForm.reset();
+            itemIdInput.value = id || '';
+            momentsContainer.innerHTML = '';
+
+            if (id) {
+                const item = mediaList.find(i => i.id === id);
+                modalTitle.textContent = 'تعديل العمل';
+                itemNameInput.value = item.name;
+                itemCategorySelect.value = item.category;
+                itemStatusSelect.value = item.status;
+                itemProgressInput.value = item.progress || '';
+                itemImageInput.value = item.image || '';
+                itemDescriptionTextarea.value = item.description || '';
+                itemRatingInput.value = item.rating || 0;
+                renderStars(ratingStarsContainer, item.rating || 0, true);
+                if (item.moments) {
+                    item.moments.forEach(moment => addMomentField(moment.point, moment.comment));
+                }
+            } else {
+                modalTitle.textContent = 'إضافة عمل جديد';
+                itemCategorySelect.value = currentCategory;
+                renderStars(ratingStarsContainer, 0, true);
+            }
+            openModal(formModal);
+        };
+        
+        // Show Details Modal
+        const showDetailsModal = (id) => {
+            const item = mediaList.find(i => i.id === id);
+            if (!item) return;
+
+            const detailsContent = document.getElementById('details-content');
+            
+            let momentsHtml = '';
+            if (item.moments && item.moments.length > 0) {
+                momentsHtml = `
+                    <h4 class="text-lg font-semibold mt-4 mb-2 text-gray-300">لحظات مهمة</h4>
+                    <ul class="list-disc list-inside space-y-2 text-gray-400">
+                        ${item.moments.map(m => `<li><strong>${m.point}:</strong> ${m.comment}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            const ratingContainer = document.createElement('div');
+            renderStars(ratingContainer, item.rating, false);
+
+            detailsContent.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-3xl font-bold text-white">${item.name}</h2>
+                    <button id="close-details-btn" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/3 flex-shrink-0">
+                        <img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';">
+                    </div>
+                    <div class="md:w-2/3">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">${categories[item.category]}</span>
+                            <span class="bg-green-900 text-green-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.status}</span>
+                            ${item.progress ? `<span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.progress}</span>` : ''}
+                        </div>
+                        <div class="flex items-center mb-4 gap-2">
+                            <strong class="text-gray-300">التقييم:</strong>
+                            <div class="flex">${ratingContainer.innerHTML}</div>
+                        </div>
+                        <p class="text-gray-400 mb-4">${item.description || 'لا يوجد وصف.'}</p>
+                        ${momentsHtml}
+                    </div>
+                </div>
+                <div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4">
+                    <button id="delete-item-btn" data-id="${item.id}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">حذف</button>
+                    <button id="edit-item-btn" data-id="${item.id}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">تعديل</button>
+                </div>
+            `;
+            
+            openModal(detailsModal);
+        };
+        
+        // Add a new moment field to the form
+        const addMomentField = (point = '', comment = '') => {
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-center';
+            div.innerHTML = `
+                <input type="text" placeholder="فصل/دقيقة" value="${point}" class="moment-point w-1/3 bg-gray-600 border border-gray-500 rounded p-2 text-sm">
+                <input type="text" placeholder="تعليق" value="${comment}" class="moment-comment w-2/3 bg-gray-600 border border-gray-500 rounded p-2 text-sm">
+                <button type="button" class="remove-moment-btn text-red-500 hover:text-red-400">&times;</button>
+            `;
+            momentsContainer.appendChild(div);
+        };
+
+        // --- EVENT LISTENERS ---
+
+        // Category tab switching
+        categoryTabsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                e.preventDefault();
+                currentCategory = e.target.dataset.category;
+                renderTabs();
+                renderItems();
+            }
+        });
+
+        // Search functionality
+        searchInput.addEventListener('keyup', (e) => {
+            currentSearchTerm = e.target.value;
+            renderItems();
+        });
+        
+        // Open form modal
+        document.getElementById('add-item-btn').addEventListener('click', () => showFormModal());
+
+        // Form submission (Add/Edit)
+        itemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = itemIdInput.value;
+            const moments = [];
+            document.querySelectorAll('#moments-container .flex').forEach(row => {
+                const point = row.querySelector('.moment-point').value;
+                const comment = row.querySelector('.moment-comment').value;
+                if (point && comment) {
+                    moments.push({ point, comment });
+                }
+            });
+
+            const itemData = {
+                name: itemNameInput.value,
+                category: itemCategorySelect.value,
+                status: itemStatusSelect.value,
+                progress: itemProgressInput.value,
+                image: itemImageInput.value,
+                description: itemDescriptionTextarea.value,
+                rating: parseInt(itemRatingInput.value, 10),
+                moments: moments
+            };
+
+            if (id) { // Editing existing item
+                const index = mediaList.findIndex(i => i.id === id);
+                mediaList[index] = { ...mediaList[index], ...itemData };
+            } else { // Adding new item
+                mediaList.push({ id: Date.now().toString(), ...itemData });
+            }
+
+            saveData();
+            renderItems();
+            closeModal(formModal);
+        });
+
+        // Modal cancellation
+        document.getElementById('cancel-btn').addEventListener('click', () => closeModal(formModal));
+        formModal.addEventListener('click', (e) => {
+            if (e.target === formModal) closeModal(formModal);
+        });
+        
+        // Details modal actions (Edit, Delete, Close)
+        detailsModal.addEventListener('click', (e) => {
+            if (e.target === detailsModal) {
+                closeModal(detailsModal);
+            }
+            if (e.target.id === 'close-details-btn' || e.target.closest('#close-details-btn')) {
+                closeModal(detailsModal);
+            }
+            if (e.target.id === 'edit-item-btn') {
+                closeModal(detailsModal);
+                showFormModal(e.target.dataset.id);
+            }
+            if (e.target.id === 'delete-item-btn') {
+                if (confirm('هل أنت متأكد من أنك تريد حذف هذا العمل؟')) {
+                    const idToDelete = e.target.dataset.id;
+                    mediaList = mediaList.filter(item => item.id !== idToDelete);
+                    saveData();
+                    renderItems();
+                    closeModal(detailsModal);
+                }
+            }
+        });
+
+        // Add/Remove moment fields
+        document.getElementById('add-moment-btn').addEventListener('click', () => addMomentField());
+        momentsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-moment-btn')) {
+                e.target.parentElement.remove();
+            }
+        });
+
+        // --- INITIALIZATION ---
+        const initialize = () => {
+            // Populate category select in form
+            for (const key in categories) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = categories[key];
+                itemCategorySelect.appendChild(option);
+            }
+            
+            renderTabs();
+            renderItems();
+        };
+
+        initialize();
+    });
+    </script>
+</body>
+</html>
