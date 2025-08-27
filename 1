@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة الأسيري - Asiri Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* تنسيقات عامة */
         * {
@@ -14,9 +15,10 @@
         }
         
         body {
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
+            padding-top: 80px;
         }
         
         .container {
@@ -28,34 +30,47 @@
         
         /* رأس الصفحة */
         header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
             color: white;
             padding: 1rem 0;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 0 0 10px 10px;
-            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
         }
         
         .logo {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: #ffd700;
         }
         
         .logo span {
-            color: #ffeb3b;
+            color: #ffd700;
         }
         
         nav ul {
             display: flex;
-            justify-content: center;
             list-style: none;
-            margin-top: 15px;
         }
         
         nav ul li {
-            margin: 0 15px;
+            margin: 0 10px;
         }
         
         nav ul li a {
@@ -67,31 +82,64 @@
             border-radius: 5px;
         }
         
-        nav ul li a:hover {
+        nav ul li a:hover, nav ul li a.active {
             background-color: rgba(255, 255, 255, 0.2);
         }
         
         /* محتوى الصفحة */
         .hero {
             text-align: center;
-            padding: 40px 0;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
+            padding: 60px 0;
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
         }
         
         .hero h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             color: #2c3e50;
             margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .hero p {
-            font-size: 1.2rem;
-            color: #7f8c8d;
+            font-size: 1.3rem;
+            color: #5a6b7e;
             max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            max-width: 600px;
             margin: 0 auto;
+            overflow: hidden;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        
+        .search-box button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box button:hover {
+            background: #1e2a36;
         }
         
         /* قسم الكتب */
@@ -101,9 +149,9 @@
         
         .section-title {
             text-align: center;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #2c3e50;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             position: relative;
             padding-bottom: 15px;
         }
@@ -116,138 +164,349 @@
             transform: translateX(-50%);
             width: 100px;
             height: 4px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
             border-radius: 2px;
         }
         
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
         }
         
         .book-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
         }
         
         .book-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
         
         .book-cover {
-            height: 300px;
-            background-color: #eee;
+            height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7f8c8d;
+            color: #5a6b7e;
             font-weight: bold;
             font-size: 1.2rem;
             text-align: center;
             padding: 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            opacity: 0.1;
         }
         
         .book-info {
-            padding: 20px;
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .book-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 10px;
             color: #2c3e50;
         }
         
         .book-author {
-            color: #7f8c8d;
+            color: #5a6b7e;
             margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .book-desc {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            color: #5a6b7e;
+            font-size: 0.9rem;
         }
         
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 5px;
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            text-align: center;
+            margin-top: 15px;
         }
         
         .btn:hover {
             opacity: 0.9;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* قسم الخدمات */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-card i {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
         }
         
         /* تذييل الصفحة */
         footer {
             background: #2c3e50;
             color: white;
-            text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
-            border-radius: 10px 10px 0 0;
+            padding: 50px 0 20px;
+            margin-top: 80px;
         }
         
         .footer-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
         }
         
-        .social-links {
-            margin: 20px 0;
-        }
-        
-        .social-links a {
-            color: white;
-            margin: 0 10px;
+        .footer-section h3 {
             font-size: 1.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #ffd700;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
             transition: color 0.3s ease;
         }
         
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
         .social-links a:hover {
-            color: #2575fc;
+            background: #ffd700;
+            color: #2c3e50;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            font-size: 0.9rem;
         }
         
         /* responsive design */
         @media (max-width: 768px) {
-            nav ul {
+            .header-content {
                 flex-direction: column;
-                align-items: center;
+                padding: 10px;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
             nav ul li {
-                margin: 5px 0;
+                margin: 5px;
             }
             
             .hero h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
             }
             
             .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
             }
+            
+            .search-box {
+                flex-direction: column;
+                border-radius: 10px;
+            }
+            
+            .search-box input {
+                border-radius: 10px 10px 0 0;
+            }
+            
+            .search-box button {
+                border-radius: 0 0 10px 10px;
+                padding: 12px;
+            }
+        }
+        
+        /* رسالة ترحيب */
+        .welcome-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            display: none;
+        }
+        
+        .welcome-message.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .welcome-message h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            margin-bottom: 20px;
+            color: #5a6b7e;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
     </style>
 </head>
 <body>
+    <!-- رسالة ترحيب -->
+    <div class="overlay" id="overlay"></div>
+    <div class="welcome-message" id="welcomeMessage">
+        <h2>مرحباً بكم في مكتبة الأسيري</h2>
+        <p>نحن سعداء بزيارتكم. استمتعوا بتصفح مجموعتنا الواسعة من الكتب.</p>
+        <button class="btn" onclick="closeWelcome()">استكشاف المكتبة</button>
+    </div>
+
+    <!-- رأس الصفحة -->
     <header>
-        <div class="container">
-            <div class="logo">مكتبة <span>الأسيري</span></div>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-book-open"></i> مكتبة <span>الأسيري</span>
+            </div>
             <nav>
                 <ul>
-                    <li><a href="#">الرئيسية</a></li>
+                    <li><a href="#" class="active">الرئيسية</a></li>
                     <li><a href="#">الكتب</a></li>
                     <li><a href="#">المؤلفون</a></li>
-                    <li><a href="#">من نحن</a></li>
+                    <li><a href="#">المجموعات</a></li>
                     <li><a href="#">اتصل بنا</a></li>
                 </ul>
             </nav>
@@ -255,74 +514,152 @@
     </header>
 
     <div class="container">
+        <!-- قسم البطل -->
         <section class="hero">
-            <h1>مرحباً بكم في مكتبة الأسيري</h1>
-            <p>اكتشف عالماً من المعرفة والثقافة مع مجموعة كتبنا المتنوعة التي تلبي جميع الأذواق والاهتمامات</p>
-            <a href="#" class="btn" style="margin-top: 20px;">استعرض الكتب</a>
+            <h1>اكتشف عالم المعرفة مع مكتبة الأسيري</h1>
+            <p>استكشف مجموعتنا الواسعة من الكتب العربية والعالمية في مختلف المجالات</p>
+            <div class="search-box">
+                <input type="text" placeholder="ابحث عن كتاب أو مؤلف...">
+                <button><i class="fas fa-search"></i> بحث</button>
+            </div>
         </section>
 
+        <!-- أحدث الكتب -->
         <section class="books-section">
-            <h2 class="section-title">أحدث الكتب</h2>
+            <h2 class="section-title">أحدث الإضافات</h2>
             <div class="books-grid">
                 <div class="book-card">
-                    <div class="book-cover">غلاف الكتاب 1</div>
+                    <div class="book-cover">العادات الذرية</div>
                     <div class="book-info">
                         <h3 class="book-title">العادات الذرية</h3>
                         <p class="book-author">جيمس كلير</p>
-                        <a href="#" class="btn">قراءة المزيد</a>
+                        <p class="book-desc">كتاب حول تغيير العادات الصغيرة لتحقيق نتائج كبيرة في الحياة.</p>
+                        <div class="book-meta">
+                            <span>أدب تطوير الذات</span>
+                            <span>⭐ 4.8</span>
+                        </div>
+                        <a href="#" class="btn">تفاصيل الكتاب</a>
                     </div>
                 </div>
                 
                 <div class="book-card">
-                    <div class="book-cover">غلاف الكتاب 2</div>
+                    <div class="book-cover">قوة التفكير الإيجابي</div>
                     <div class="book-info">
                         <h3 class="book-title">قوة التفكير الإيجابي</h3>
-                        <p class="book-authorنورمان فينسنت بيل</p>
-                        <a href="#" class="btn">قراءة المزيد</a>
+                        <p class="book-author">نورمان فينسنت بيل</p>
+                        <p class="book-desc">استكشاف قوة التفكير الإيجابي وتأثيره على حياتنا اليومية.</p>
+                        <div class="book-meta">
+                            <span>علم النفس</span>
+                            <span>⭐ 4.6</span>
+                        </div>
+                        <a href="#" class="btn">تفاصيل الكتاب</a>
                     </div>
                 </div>
                 
                 <div class="book-card">
-                    <div class="book-cover">غلاف الكتاب 3</div>
+                    <div class="book-cover">الروحانية في الأعمال</div>
                     <div class="book-info">
                         <h3 class="book-title">الروحانية في الأعمال</h3>
                         <p class="book-author">سليمان العيسى</p>
-                        <a href="#" class="btn">قراءة المزيد</a>
+                        <p class="book-desc">كيفية تحقيق التوازن بين الروحانية والعمل في الحياة المهنية.</p>
+                        <div class="book-meta">
+                            <span>أدب الأعمال</span>
+                            <span>⭐ 4.7</span>
+                        </div>
+                        <a href="#" class="btn">تفاصيل الكتاب</a>
                     </div>
                 </div>
                 
                 <div class="book-card">
-                    <div class="book-cover">غلاف الكتاب 4</div>
+                    <div class="book-cover">فن اللامبالاة</div>
                     <div class="book-info">
                         <h3 class="book-title">فن اللامبالاة</h3>
                         <p class="book-author">مارك مانسون</p>
-                        <a href="#" class="btn">قراءة المزيد</a>
+                        <p class="book-desc">عيش حياة تتعارض مع المعتقدات الشائعة حول السعادة والنجاح.</p>
+                        <div class="book-meta">
+                            <span>تطوير الذات</span>
+                            <span>⭐ 4.5</span>
+                        </div>
+                        <a href="#" class="btn">تفاصيل الكتاب</a>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- خدماتنا -->
+        <section class="books-section">
+            <h2 class="section-title">خدماتنا</h2>
+            <div class="services">
+                <div class="service-card">
+                    <i class="fas fa-book-reader"></i>
+                    <h3>استعارة الكتب</h3>
+                    <p>استعارة الكتب لمدة تصل إلى أسبوعين مع إمكانية التجديد</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-desktop"></i>
+                    <h3>قاعة القراءة</h3>
+                    <p>مكان هادئ ومريح للقراءة والدراسة مع خدمات الواي فاي المجانية</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-users"></i>
+                    <h3>فعاليات ثقافية</h3>
+                    <p>ندوات وورش عمل ونوادي كتاب بشكل دوري لمحبي القراءة</p>
                 </div>
             </div>
         </section>
     </div>
 
+    <!-- تذييل الصفحة -->
     <footer>
         <div class="container">
             <div class="footer-content">
-                <h3>مكتبة الأسيري للكتب العربية</h3>
-                <p>جميع الحقوق محفوظة &copy; 2023</p>
-                <div class="social-links">
-                    <a href="#">📱</a>
-                    <a href="#">💬</a>
-                    <a href="#">📧</a>
+                <div class="footer-section">
+                    <h3>عن المكتبة</h3>
+                    <p>مكتبة الأسيري منارة ثقافية تهدف إلى نشر المعرفة والثقافة العربية وتشجيع القراءة.</p>
                 </div>
+                
+                <div class="footer-section">
+                    <h3>روابط سريعة</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">الرئيسية</a></li>
+                        <li><a href="#">الكتب الجديدة</a></li>
+                        <li><a href="#">المؤلفون</a></li>
+                        <li><a href="#">الفعاليات</a></li>
+                        <li><a href="#">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>معلومات التواصل</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> الرياض، المملكة العربية السعودية</p>
+                    <p><i class="fas fa-phone"></i> +966 12 345 6789</p>
+                    <p><i class="fas fa-envelope"></i> info@asirilibrary.com</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>جميع الحقوق محفوظة &copy; 2023 مكتبة الأسيري</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // كود JavaScript الأساسي
+        // عرض رسالة الترحيب عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('تم تحميل الموقع بنجاح!');
+            setTimeout(function() {
+                document.getElementById('welcomeMessage').classList.add('active');
+                document.getElementById('overlay').classList.add('active');
+            }, 1000);
             
-            // إضافة تأثيرات تفاعلية بسيطة
+            // إضافة تأثيرات تفاعلية للأزرار
             const buttons = document.querySelectorAll('.btn');
             buttons.forEach(button => {
                 button.addEventListener('mouseenter', function() {
@@ -333,6 +670,22 @@
                     this.style.transform = 'scale(1)';
                 });
             });
+        });
+        
+        // إغلاق رسالة الترحيب
+        function closeWelcome() {
+            document.getElementById('welcomeMessage').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        
+        // إضافة تأثيرات للبحث
+        const searchBox = document.querySelector('.search-box input');
+        searchBox.addEventListener('focus', function() {
+            this.parentElement.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+        });
+        
+        searchBox.addEventListener('blur', function() {
+            this.parentElement.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
         });
     </script>
 </body>
