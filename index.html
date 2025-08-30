@@ -5,20 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عسيري شو - متتبع أعمالك الفنية</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts (Tajawal for Arabic) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Custom Styles and Tailwind Configuration -->
     <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-        /* Custom scrollbar */
+        body { font-family: 'Tajawal', sans-serif; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #111827; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
@@ -30,166 +24,107 @@
         }
         .transition-all { transition: all 0.3s ease-in-out; }
         .focus-ring { @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75; }
-        /* Style for tags */
-        .tag {
-            @apply bg-gray-600 text-gray-200 text-xs font-semibold mr-2 px-2.5 py-1 rounded-full;
+        .tag { @apply bg-gray-600 text-gray-200 text-xs font-semibold mr-2 px-2.5 py-1 rounded-full; }
+        .dropdown-menu {
+            @apply absolute left-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg z-20 hidden ring-1 ring-black ring-opacity-5;
         }
-        /* Hide file input visually but keep it accessible */
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
+        .dropdown-item {
+            @apply block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 w-full text-right flex items-center gap-3;
+        }
+        /* Added for search panel animation */
+        .search-panel-container {
+            max-height: 0;
             overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .search-panel-container.open {
+            max-height: 500px; /* Adjust as needed */
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
 
-    <!-- Main Container -->
     <div class="container mx-auto p-4 md:p-8">
 
-        <!-- Header -->
         <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold text-white">عسيري شو</h1>
             <p class="text-gray-400 mt-2">متتبع أعمالك الفنية المفضل</p>
         </header>
-        
-        <!-- Data Management: Import/Export -->
-        <div class="mb-4 flex flex-wrap justify-center gap-2">
-            <button id="export-data-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition-all focus-ring flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                تصدير البيانات
-            </button>
-            <button id="import-data-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition-all focus-ring flex items-center gap-2">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                استيراد البيانات
-            </button>
-            <input type="file" id="import-file-input" class="visually-hidden" accept=".json">
-        </div>
 
-        <!-- Category Tabs & Management -->
-        <div class="mb-6">
-            <div class="border-b border-gray-700 flex items-center justify-between gap-4">
+        <div class="mb-4">
+            <div class="border-b border-gray-700 flex items-center justify-between gap-2">
                 <nav id="category-tabs" class="-mb-px flex space-x-4 space-x-reverse overflow-x-auto pb-2" aria-label="Tabs"></nav>
-                <div class="flex-shrink-0 flex gap-2">
-                    <button id="add-category-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm py-1 px-3 rounded-lg transition-all focus-ring" title="إضافة تصنيف جديد">+ إضافة</button>
-                    <button id="manage-categories-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm py-1 px-3 rounded-lg transition-all focus-ring" title="إدارة التصنيفات">إدارة</button>
+                <div class="flex items-center flex-shrink-0">
+                    <button id="search-toggle-btn" class="text-gray-400 hover:text-white focus-ring rounded-full p-2">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                    </button>
+                    <div class="relative" id="settings-menu">
+                        <button id="settings-btn" class="text-gray-400 hover:text-white focus-ring rounded-full p-2">
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                        <div id="settings-dropdown" class="dropdown-menu">
+                            <button id="add-category-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg><span>إضافة تصنيف</span></button>
+                            <button id="manage-categories-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg><span>إدارة التصنيفات</span></button>
+                            <div class="border-t border-gray-600 my-1"></div>
+                            <button id="export-data-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" /></svg><span>تصدير البيانات</span></button>
+                            <button id="import-data-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9.25 1.75a.75.75 0 00-1.5 0V9.44l-3.22-3.22a.75.75 0 00-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06L10.75 9.44V1.75z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" /></svg><span>استيراد البيانات</span></button>
+                            <input type="file" id="import-file-input" class="hidden" accept=".json">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Controls: Search, Filter, Sort, and Add Button -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 items-end">
-            <div class="relative lg:col-span-1 md:col-span-1 sm:col-span-2">
-                <label for="search-input" class="block text-sm font-medium text-gray-400 mb-1">ابحث بالاسم</label>
-                <input type="text" id="search-input" placeholder="اسم العمل..." class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 text-white focus-ring">
+        <div id="search-panel-container" class="search-panel-container">
+            <div class="bg-gray-800 p-4 rounded-lg mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div class="relative"><label for="search-input" class="block text-sm font-medium text-gray-400 mb-1">ابحث بالاسم</label><input type="text" id="search-input" placeholder="اسم العمل..." class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white focus-ring"></div>
+                    <div class="relative"><label for="tag-search-input" class="block text-sm font-medium text-gray-400 mb-1">ابحث بالوسم</label><input type="text" id="tag-search-input" placeholder="اسم الوسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white focus-ring"></div>
+                    <div><label for="rating-filter" class="block text-sm font-medium text-gray-400 mb-1">فرز بالتقييم</label><select id="rating-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white focus-ring"><option value="0">الكل</option><option value="1">⭐ 1</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option><option value="6">⭐⭐⭐⭐⭐⭐ 6</option><option value="7">⭐⭐⭐⭐⭐⭐⭐ 7</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐ 8</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐ 9</option><option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ 10</option></select></div>
+                    <div><label for="sort-by" class="block text-sm font-medium text-gray-400 mb-1">ترتيب حسب</label><select id="sort-by" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white focus-ring"><option value="newest">الأحدث</option><option value="oldest">الأقدم</option><option value="rating_desc">الأعلى تقييماً</option><option value="rating_asc">الأقل تقييماً</option><option value="alpha_asc">أبجدي (أ - ي)</option><option value="alpha_desc">أبجدي (ي - أ)</option></select></div>
+                </div>
             </div>
-             <div class="relative lg:col-span-1 md:col-span-1 sm:col-span-2">
-                <label for="tag-search-input" class="block text-sm font-medium text-gray-400 mb-1">ابحث بالوسم</label>
-                <input type="text" id="tag-search-input" placeholder="اسم الوسم..." class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 text-white focus-ring">
-            </div>
-            <div>
-                <label for="rating-filter" class="block text-sm font-medium text-gray-400 mb-1">فرز بالتقييم</label>
-                <select id="rating-filter" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 text-white focus-ring">
-                    <option value="0">الكل</option>
-                    <option value="1">⭐ 1</option><option value="2">⭐⭐ 2</option><option value="3">⭐⭐⭐ 3</option><option value="4">⭐⭐⭐⭐ 4</option><option value="5">⭐⭐⭐⭐⭐ 5</option><option value="6">⭐⭐⭐⭐⭐⭐ 6</option><option value="7">⭐⭐⭐⭐⭐⭐⭐ 7</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐ 8</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐ 9</option><option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ 10</option>
-                </select>
-            </div>
-            <div>
-                <label for="sort-by" class="block text-sm font-medium text-gray-400 mb-1">ترتيب حسب</label>
-                <select id="sort-by" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 text-white focus-ring">
-                    <option value="newest">الأحدث إضافة</option><option value="oldest">الأقدم إضافة</option><option value="rating_desc">الأعلى تقييماً</option><option value="rating_asc">الأقل تقييماً</option><option value="alpha_asc">أبجدي (أ - ي)</option><option value="alpha_desc">أبجدي (ي - أ)</option><option value="endDate_desc">تاريخ الانتهاء (الأحدث)</option><option value="endDate_asc">تاريخ الانتهاء (الأقدم)</option>
-                </select>
-            </div>
-            <button id="add-item-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all flex items-center justify-center gap-2 focus-ring">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
-                إضافة عمل
-            </button>
         </div>
 
-        <!-- Media Items Grid -->
+        <button id="add-item-btn" class="w-full mb-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 focus-ring text-lg"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>إضافة عمل جديد</button>
+
         <div id="items-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"></div>
-        <div id="empty-state" class="text-center py-16 text-gray-500 hidden"><p class="text-xl">لم تقم بإضافة أي أعمال في هذا القسم بعد.</p><p>انقر على "إضافة عمل" للبدء!</p></div>
+        <div id="empty-state" class="text-center py-16 text-gray-500 hidden"><p class="text-xl">لم تقم بإضافة أي أعمال في هذا القسم بعد.</p><p>انقر على "إضافة عمل جديد" للبدء!</p></div>
     </div>
 
-    <!-- Add/Edit Item Modal -->
+    <!-- Modals -->
     <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden transition-all">
         <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6" id="form-modal-content">
             <form id="item-form">
-                <input type="hidden" id="item-id">
-                <input type="hidden" id="item-image-base64">
-                <h2 id="modal-title" class="text-2xl font-bold mb-6 text-white">إضافة عمل جديد</h2>
+                <input type="hidden" id="item-id"><h2 id="modal-title" class="text-2xl font-bold mb-6 text-white">إضافة عمل جديد</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label for="item-name" class="block mb-2 text-sm font-medium text-gray-300">الاسم</label><input type="text" id="item-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring" required></div>
                     <div><label for="item-category" class="block mb-2 text-sm font-medium text-gray-300">القسم الرئيسي</label><select id="item-category" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring" required></select></div>
                     <div><label for="item-status" class="block mb-2 text-sm font-medium text-gray-300">الحالة</label><select id="item-status" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="متوقف">متوقف</option><option value="متروك">متروك</option><option value="للمشاهدة">للمشاهدة/للقراءة</option></select></div>
                     <div><label for="item-progress" class="block mb-2 text-sm font-medium text-gray-300">التقدم</label><input type="text" id="item-progress" placeholder="مثال: الفصل 120" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
-                    <div><label for="item-startDate" class="block mb-2 text-sm font-medium text-gray-300">تاريخ البدء</label><input type="date" id="item-startDate" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
-                    <div><label for="item-endDate" class="block mb-2 text-sm font-medium text-gray-300">تاريخ الانتهاء</label><input type="date" id="item-endDate" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
-                    
-                    <div class="md:col-span-2">
-                        <label class="block mb-2 text-sm font-medium text-gray-300">صورة الغلاف</label>
-                        <div class="flex items-center gap-4">
-                            <img id="item-image-preview" src="https://placehold.co/100x150/1f2937/6b7280?text=No+Image" class="w-24 h-36 object-cover rounded-md bg-gray-700">
-                            <div class="w-full">
-                                <label for="item-image-upload" class="cursor-pointer bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-all focus-ring w-full text-center block">اختر صورة</label>
-                                <input type="file" id="item-image-upload" class="visually-hidden" accept="image/*">
-                                <p class="text-xs text-gray-400 mt-2">أو أدخل رابط صورة أدناه:</p>
-                                <input type="url" id="item-image-url" placeholder="https://example.com/image.jpg" class="w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring text-sm">
-                            </div>
-                        </div>
-                    </div>
-
+                    <div class="md:col-span-2"><label for="item-image" class="block mb-2 text-sm font-medium text-gray-300">رابط الصورة</label><input type="url" id="item-image" placeholder="https://example.com/image.jpg" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
                     <div class="md:col-span-2"><label for="item-description" class="block mb-2 text-sm font-medium text-gray-300">الوصف</label><textarea id="item-description" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
                     <div class="md:col-span-2"><label class="block mb-2 text-sm font-medium text-gray-300">التقييم (من 10)</label><div id="item-rating-stars" class="flex items-center" dir="ltr"></div><input type="hidden" id="item-rating" value="0"></div>
                     <div class="md:col-span-2"><label for="item-tag-input" class="block mb-2 text-sm font-medium text-gray-300">الوسوم (التصنيفات الثانوية)</label><div class="flex gap-2"><input type="text" id="item-tag-input" list="default-tags-list" placeholder="أضف وسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"><button type="button" id="add-tag-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">إضافة</button></div><datalist id="default-tags-list"></datalist><div id="item-tags-container" class="mt-3 flex flex-wrap gap-2"></div></div>
-                    <div class="md:col-span-2">
-                        <h3 class="text-lg font-semibold mb-2 text-white">لحظات مهمة</h3>
-                        <div id="moments-container" class="space-y-2"></div>
-                        <button type="button" id="add-moment-btn" class="mt-2 text-blue-500 hover:text-blue-400 text-sm focus-ring">+ إضافة لحظة</button>
-                    </div>
+                    <div class="md:col-span-2"><h3 class="text-lg font-semibold mb-2 text-white">لحظات مهمة</h3><div id="moments-container" class="space-y-2"></div><button type="button" id="add-moment-btn" class="mt-2 text-blue-500 hover:text-blue-400 text-sm focus-ring">+ إضافة لحظة</button></div>
                 </div>
                 <div class="flex justify-end gap-4 mt-8"><button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-all focus-ring">إلغاء</button><button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-all focus-ring">حفظ</button></div>
             </form>
         </div>
     </div>
     
-    <!-- Details View Modal -->
-    <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden transition-all">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" id="details-modal-content"><div id="details-content" class="p-6"></div></div>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60] hidden transition-all">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 text-center"><h3 id="confirm-title" class="text-lg font-bold text-white mb-4">هل أنت متأكد؟</h3><p id="confirm-message" class="text-gray-400 mb-6">لا يمكن التراجع عن هذا الإجراء.</p><div class="flex justify-center gap-4"><button id="confirm-cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-all focus-ring">إلغاء</button><button id="confirm-ok-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-all focus-ring">تأكيد</button></div></div>
-    </div>
-
-    <!-- Manage Categories Modal -->
-    <div id="manage-categories-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60] hidden transition-all">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-white">إدارة التصنيفات</h2><button id="close-manage-categories-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div>
-            <p class="text-sm text-gray-400 mb-4">يمكنك هنا حذف التصنيفات المضافة. سيتم نقل أي أعمال ضمن التصنيف المحذوف إلى قسم "آخر".</p>
-            <div id="manage-categories-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
-        </div>
-    </div>
+    <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden transition-all"><div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" id="details-modal-content"><div id="details-content" class="p-6"></div></div></div>
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60] hidden transition-all"><div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 text-center"><h3 id="confirm-title" class="text-lg font-bold text-white mb-4">هل أنت متأكد؟</h3><p id="confirm-message" class="text-gray-400 mb-6">لا يمكن التراجع عن هذا الإجراء.</p><div class="flex justify-center gap-4"><button id="confirm-cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-all focus-ring">إلغاء</button><button id="confirm-ok-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-all focus-ring">تأكيد</button></div></div></div>
+    <div id="manage-categories-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60] hidden transition-all"><div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-white">إدارة التصنيفات</h2><button id="close-manage-categories-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><p class="text-sm text-gray-400 mb-4">سيتم نقل أي أعمال ضمن التصنيف المحذوف إلى قسم "آخر".</p><div id="manage-categories-list" class="space-y-2 max-h-64 overflow-y-auto"></div></div></div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- CONFIGURATION & STATE ---
         const defaultCategories = {'روايات': 'روايات','مانجا': 'مانجا/مانهوا','انمي': 'انمي','فيلم': 'أفلام','مسلسل': 'مسلسلات','آخر': 'آخر'};
         const defaultTags = ['رومانسية','خيال علمي','فانتازيا','جريمة','إثارة','رعب','غموض','تاريخية','واقعية','ديستوبيا','كبار (Adult)','شباب (YA)','أطفال (MG)','مغامرة','نموذجية (Coming-of-Age)','سيرة ذاتية','مأساوية (Tragedy)','كوميدية','ميلودراما','خيالية (Fiction)','غير خيالية (Non-Fiction)'];
-        const placeholderImg = 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image';
-
         let mediaList = JSON.parse(localStorage.getItem('mediaList')) || [];
         let categories = JSON.parse(localStorage.getItem('categories')) || defaultCategories;
         let currentCategory = Object.keys(categories)[0];
         
-        // --- DOM ELEMENTS ---
         const categoryTabsContainer = document.getElementById('category-tabs');
         const itemsGrid = document.getElementById('items-grid');
         const emptyState = document.getElementById('empty-state');
@@ -207,23 +142,20 @@
         const tagInput = document.getElementById('item-tag-input');
         const tagsContainer = document.getElementById('item-tags-container');
         const momentsContainer = document.getElementById('moments-container');
-        const imageBase64Input = document.getElementById('item-image-base64');
-        const imagePreview = document.getElementById('item-image-preview');
-        const imageUploadInput = document.getElementById('item-image-upload');
-        const imageUrlInput = document.getElementById('item-image-url');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsDropdown = document.getElementById('settings-dropdown');
         const importFileInput = document.getElementById('import-file-input');
+        const searchToggleBtn = document.getElementById('search-toggle-btn');
+        const searchPanelContainer = document.getElementById('search-panel-container');
 
-        // --- DATA PERSISTENCE ---
         const saveData = () => localStorage.setItem('mediaList', JSON.stringify(mediaList));
         const saveCategories = () => localStorage.setItem('categories', JSON.stringify(categories));
 
-        // --- RENDERING FUNCTIONS ---
         const renderTabs = () => {
             categoryTabsContainer.innerHTML = '';
             for (const key in categories) {
                 const tab = document.createElement('a');
-                tab.href = '#';
-                tab.dataset.category = key;
+                tab.href = '#'; tab.dataset.category = key;
                 tab.className = `whitespace-nowrap py-2 px-3 font-medium text-sm rounded-t-lg border-b-2 transition-all ${currentCategory === key ? 'tab-active' : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'}`;
                 tab.textContent = categories[key];
                 categoryTabsContainer.appendChild(tab);
@@ -239,8 +171,7 @@
                     star.dataset.value = i;
                     star.onclick = () => {
                         const newRating = (itemRatingInput.value == i) ? 0 : i;
-                        itemRatingInput.value = newRating;
-                        renderStars(container, newRating, true);
+                        itemRatingInput.value = newRating; renderStars(container, newRating, true);
                     };
                 }
                 container.appendChild(star);
@@ -250,90 +181,46 @@
         const renderItems = () => {
             itemsGrid.innerHTML = '';
             let filteredList = mediaList.filter(item => item.category === currentCategory);
-            
             const searchTerm = searchInput.value.toLowerCase();
             if (searchTerm) filteredList = filteredList.filter(item => item.name.toLowerCase().includes(searchTerm));
-
             const tagSearchTerm = tagSearchInput.value.toLowerCase();
-            if (tagSearchTerm) {
-                filteredList = filteredList.filter(item => item.tags && item.tags.some(tag => tag.toLowerCase().includes(tagSearchTerm)));
-            }
-
+            if (tagSearchTerm) filteredList = filteredList.filter(item => item.tags && item.tags.some(tag => tag.toLowerCase().includes(tagSearchTerm)));
             const exactRating = parseInt(ratingFilter.value, 10);
             if (exactRating > 0) filteredList = filteredList.filter(item => (item.rating || 0) === exactRating);
 
             filteredList.sort((a, b) => {
                 const sortValue = sortBy.value;
-                switch (sortValue) {
-                    case 'newest': return b.id.localeCompare(a.id);
-                    case 'oldest': return a.id.localeCompare(b.id);
-                    case 'rating_desc': return (b.rating || 0) - (a.rating || 0);
-                    case 'rating_asc': return (a.rating || 0) - (b.rating || 0);
-                    case 'alpha_asc': return a.name.localeCompare(b.name, 'ar');
-                    case 'alpha_desc': return b.name.localeCompare(a.name, 'ar');
-                    case 'endDate_desc': return new Date(b.endDate || 0) - new Date(a.endDate || 0);
-                    case 'endDate_asc': return new Date(a.endDate || 0) - new Date(b.endDate || 0);
-                    default: return 0;
-                }
+                if (sortValue === 'newest') return b.id.localeCompare(a.id); if (sortValue === 'oldest') return a.id.localeCompare(b.id);
+                if (sortValue === 'rating_desc') return (b.rating || 0) - (a.rating || 0); if (sortValue === 'rating_asc') return (a.rating || 0) - (b.rating || 0);
+                if (sortValue === 'alpha_asc') return a.name.localeCompare(b.name, 'ar'); if (sortValue === 'alpha_desc') return b.name.localeCompare(a.name, 'ar');
+                return 0;
             });
 
             emptyState.classList.toggle('hidden', filteredList.length > 0);
-
             filteredList.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer transform hover:-translate-y-1 transition-all group';
                 card.dataset.id = item.id;
                 const ratingHtml = item.rating > 0 ? `<div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1"><span>${item.rating}</span><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></div>` : '';
-                
-                card.innerHTML = `
-                    <div class="relative">
-                        <img src="${item.image || placeholderImg}" alt="${item.name}" class="w-full h-48 sm:h-64 object-cover" onerror="this.onerror=null;this.src='${placeholderImg}';">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <span class="text-white text-lg font-bold">عرض التفاصيل</span>
-                        </div>
-                        ${ratingHtml}
-                    </div>
-                    <div class="p-3">
-                        <h3 class="font-bold text-sm text-white truncate">${item.name}</h3>
-                        <p class="text-xs text-gray-400">${item.status}</p>
-                    </div>`;
+                card.innerHTML = `<div class="relative"><img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full h-56 sm:h-72 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all"></div>${ratingHtml}</div><div class="p-3"><h3 class="font-bold text-sm text-white truncate">${item.name}</h3><p class="text-xs text-gray-400">${item.status}</p></div>`;
                 card.onclick = () => showDetailsModal(item.id);
                 itemsGrid.appendChild(card);
             });
         };
         
-        // --- MODAL MANAGEMENT ---
         const openModal = (modal) => modal.classList.remove('hidden');
         const closeModal = (modal) => modal.classList.add('hidden');
 
         const showFormModal = (id = null) => {
-            itemForm.reset();
-            itemIdInput.value = id || '';
-            tagsContainer.innerHTML = '';
-            momentsContainer.innerHTML = '';
-            imageBase64Input.value = '';
-            imagePreview.src = placeholderImg;
-
+            itemForm.reset(); itemIdInput.value = id || '';
+            tagsContainer.innerHTML = ''; momentsContainer.innerHTML = '';
             const item = id ? mediaList.find(i => i.id === id) : null;
             modalTitle.textContent = item ? 'تعديل العمل' : 'إضافة عمل جديد';
             document.getElementById('item-name').value = item?.name || '';
             itemCategorySelect.value = item?.category || currentCategory;
             document.getElementById('item-status').value = item?.status || 'جاري';
             document.getElementById('item-progress').value = item?.progress || '';
-            document.getElementById('item-startDate').value = item?.startDate || '';
-            document.getElementById('item-endDate').value = item?.endDate || '';
-            
-            // Handle image display for editing
-            if (item?.image) {
-                imagePreview.src = item.image;
-                if (item.image.startsWith('data:image')) {
-                    imageBase64Input.value = item.image;
-                    imageUrlInput.value = '';
-                } else {
-                    imageUrlInput.value = item.image;
-                }
-            }
-            
+            document.getElementById('item-image').value = item?.image || '';
             document.getElementById('item-description').value = item?.description || '';
             itemRatingInput.value = item?.rating || 0;
             renderStars(ratingStarsContainer, item?.rating || 0, true);
@@ -343,26 +230,12 @@
         };
         
         const showDetailsModal = (id) => {
-            const item = mediaList.find(i => i.id === id);
-            if (!item) return;
+            const item = mediaList.find(i => i.id === id); if (!item) return;
             const detailsContent = document.getElementById('details-content');
-            const ratingContainer = document.createElement('div');
-            renderStars(ratingContainer, item.rating, false);
-            
-            const formatDate = (dateString) => {
-                if (!dateString) return 'غير محدد';
-                return new Date(dateString).toLocaleDateString('ar-SA');
-            };
-
-            const datesHtml = `<div class="my-4 text-sm text-gray-400">
-                <p><strong>تاريخ البدء:</strong> ${formatDate(item.startDate)}</p>
-                <p><strong>تاريخ الانتهاء:</strong> ${formatDate(item.endDate)}</p>
-            </div>`;
-
+            const ratingContainer = document.createElement('div'); renderStars(ratingContainer, item.rating, false);
             const tagsHtml = item.tags && item.tags.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">الوسوم:</h4><div class="flex flex-wrap gap-2">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></div>` : '';
             const momentsHtml = item.moments && item.moments.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">لحظات مهمة:</h4><ul class="list-disc list-inside space-y-2 text-gray-400">${item.moments.map(m => `<li><strong>${m.point || ''}:</strong> ${m.comment || ''}</li>`).join('')}</ul></div>` : '';
-            
-            detailsContent.innerHTML = `<div class="flex justify-between items-start mb-4"><h2 class="text-3xl font-bold text-white">${item.name}</h2><button id="close-details-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></div><div class="flex flex-col md:flex-row gap-6"><div class="md:w-1/3 flex-shrink-0"><img src="${item.image || placeholderImg}" alt="${item.name}" class="w-full rounded-lg shadow-lg" onerror="this.onerror=null;this.src='${placeholderImg}';"></div><div class="md:w-2/3"><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">${categories[item.category]}</span><span class="bg-green-900 text-green-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.status}</span>${item.progress ? `<span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.progress}</span>` : ''}</div><div class="flex items-center mb-4 gap-2"><strong class="text-gray-300">التقييم:</strong><div class="flex">${ratingContainer.innerHTML}</div></div>${datesHtml}<p class="text-gray-400 mb-4 whitespace-pre-wrap">${item.description || 'لا يوجد وصف.'}</p>${tagsHtml}${momentsHtml}</div></div><div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4"><button id="delete-item-btn" data-id="${item.id}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">حذف</button><button id="edit-item-btn" data-id="${item.id}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">تعديل</button></div>`;
+            detailsContent.innerHTML = `<div class="flex justify-between items-start mb-4"><h2 class="text-3xl font-bold text-white">${item.name}</h2><button id="close-details-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></div><div class="flex flex-col md:flex-row gap-6"><div class="md:w-1/3 flex-shrink-0"><img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';"></div><div class="md:w-2/3"><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">${categories[item.category]}</span><span class="bg-green-900 text-green-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.status}</span>${item.progress ? `<span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.progress}</span>` : ''}</div><div class="flex items-center mb-4 gap-2"><strong class="text-gray-300">التقييم:</strong><div class="flex">${ratingContainer.innerHTML}</div></div><p class="text-gray-400 mb-4 whitespace-pre-wrap">${item.description || 'لا يوجد وصف.'}</p>${tagsHtml}${momentsHtml}</div></div><div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4"><button id="delete-item-btn" data-id="${item.id}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">حذف</button><button id="edit-item-btn" data-id="${item.id}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">تعديل</button></div>`;
             openModal(modals.details);
         };
 
@@ -386,7 +259,6 @@
             if(listContainer.innerHTML === '') listContainer.innerHTML = '<p class="text-gray-500 text-center">لا توجد تصنيفات مضافة.</p>';
         };
 
-        // --- TAGS & MOMENTS MANAGEMENT ---
         const addTagToForm = (tagText) => {
             if (!tagText || tagText.trim() === '') return;
             const existingTags = Array.from(tagsContainer.querySelectorAll('.tag-pill-text')).map(el => el.textContent);
@@ -403,22 +275,15 @@
             momentsContainer.appendChild(div);
         };
 
-        // --- DATA IMPORT/EXPORT ---
         const exportData = () => {
-            const dataToExport = {
-                mediaList: mediaList,
-                categories: categories
-            };
-            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataStr = JSON.stringify({ version: 1, categories, mediaList });
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `asiri-show-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            const a = document.createElement('a');
+            a.href = url; a.download = `asiryshow_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
+            alert('تم تصدير البيانات بنجاح!');
         };
 
         const importData = (event) => {
@@ -428,36 +293,33 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data && data.mediaList && data.categories) {
+                    if (data.version === 1 && data.categories && data.mediaList) {
                         showConfirmModal('استيراد البيانات', 'سيؤدي هذا إلى الكتابة فوق جميع بياناتك الحالية. هل أنت متأكد؟', () => {
-                            mediaList = data.mediaList;
-                            categories = data.categories;
-                            saveData();
-                            saveCategories();
-                            initialize(); // Re-initialize the app
+                            categories = data.categories; mediaList = data.mediaList;
+                            saveCategories(); saveData();
+                            alert('تم استيراد البيانات بنجاح!');
+                            location.reload();
                         });
-                    } else {
-                        alert('ملف غير صالح. الرجاء التأكد من أنه ملف تصدير صحيح.');
-                    }
-                } catch (error) {
-                    console.error("Error parsing JSON file:", error);
-                    alert('حدث خطأ أثناء قراءة الملف.');
-                } finally {
-                    // Reset file input to allow importing the same file again
-                    importFileInput.value = '';
-                }
+                    } else { throw new Error('Invalid file format'); }
+                } catch (error) { alert('خطأ: ملف غير صالح أو تالف.'); }
             };
             reader.readAsText(file);
+            importFileInput.value = '';
         };
-
-        // --- EVENT LISTENERS ---
-        document.getElementById('export-data-btn').addEventListener('click', exportData);
-        document.getElementById('import-data-btn').addEventListener('click', () => importFileInput.click());
-        importFileInput.addEventListener('change', importData);
-
+        
+        searchToggleBtn.addEventListener('click', () => {
+            searchPanelContainer.classList.toggle('open');
+        });
+        settingsBtn.addEventListener('click', () => settingsDropdown.classList.toggle('hidden'));
+        document.addEventListener('click', (e) => { if (!document.getElementById('settings-menu').contains(e.target)) settingsDropdown.classList.add('hidden'); });
+        const closeDropdown = () => settingsDropdown.classList.add('hidden');
+        
         categoryTabsContainer.addEventListener('click', e => { if (e.target.tagName === 'A') { e.preventDefault(); currentCategory = e.target.dataset.category; renderTabs(); renderItems(); } });
-        document.getElementById('add-category-btn').addEventListener('click', () => { const name = prompt('ادخل اسم التصنيف الجديد:'); if (name && name.trim()) { if (!categories[name.trim()]) { categories[name.trim()] = name.trim(); saveCategories(); populateCategorySelect(); renderTabs(); } else alert('هذا التصنيف موجود بالفعل.'); } });
-        document.getElementById('manage-categories-btn').addEventListener('click', () => { renderCategoryManager(); openModal(modals.manageCategories); });
+        document.getElementById('add-category-btn').addEventListener('click', () => { closeDropdown(); const name = prompt('ادخل اسم التصنيف الجديد:'); if (name && name.trim()) { if (!categories[name.trim()]) { categories[name.trim()] = name.trim(); saveCategories(); populateCategorySelect(); renderTabs(); } else alert('هذا التصنيف موجود بالفعل.'); } });
+        document.getElementById('manage-categories-btn').addEventListener('click', () => { closeDropdown(); renderCategoryManager(); openModal(modals.manageCategories); });
+        document.getElementById('export-data-btn').addEventListener('click', () => { closeDropdown(); exportData(); });
+        document.getElementById('import-data-btn').addEventListener('click', () => { closeDropdown(); importFileInput.click(); });
+        importFileInput.addEventListener('change', importData);
         modals.manageCategories.addEventListener('click', e => {
             if (e.target.id === 'close-manage-categories-btn') closeModal(modals.manageCategories);
             if(e.target.classList.contains('delete-category-btn')) { const keyToDelete = e.target.dataset.key; showConfirmModal('حذف التصنيف؟', `سيتم نقل كل الأعمال من تصنيف "${categories[keyToDelete]}" إلى "آخر".`, () => { mediaList.forEach(item => { if(item.category === keyToDelete) item.category = 'آخر'; }); delete categories[keyToDelete]; if(currentCategory === keyToDelete) currentCategory = 'آخر'; saveData(); saveCategories(); renderTabs(); renderItems(); populateCategorySelect(); renderCategoryManager(); }); }
@@ -472,48 +334,12 @@
         document.getElementById('add-moment-btn').addEventListener('click', () => addMomentField());
         momentsContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-moment-btn')) { e.target.closest('.moment-row').remove(); } });
 
-        // Image upload handler
-        imageUploadInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imageBase64Input.value = e.target.result;
-                imagePreview.src = e.target.result;
-                imageUrlInput.value = ''; // Clear URL if a file is uploaded
-            };
-            reader.readAsDataURL(file);
-        });
-        imageUrlInput.addEventListener('input', () => {
-             if (imageUrlInput.value.trim()) {
-                 imagePreview.src = imageUrlInput.value.trim();
-                 imageBase64Input.value = ''; // Clear Base64 if a URL is entered
-                 imageUploadInput.value = '';
-             }
-        });
-
         itemForm.addEventListener('submit', e => {
-            e.preventDefault();
-            const id = itemIdInput.value;
+            e.preventDefault(); const id = itemIdInput.value;
             const currentTags = Array.from(tagsContainer.querySelectorAll('.tag-pill-text')).map(el => el.textContent);
             const currentMoments = [];
             document.querySelectorAll('#moments-container .moment-row').forEach(row => { const point = row.querySelector('.moment-point').value; const comment = row.querySelector('.moment-comment').value; if (point || comment) { currentMoments.push({ point, comment }); } });
-            
-            const imageValue = imageBase64Input.value || imageUrlInput.value || (id ? mediaList.find(i => i.id === id)?.image : '') || '';
-
-            const itemData = { 
-                name: document.getElementById('item-name').value, 
-                category: itemCategorySelect.value, 
-                status: document.getElementById('item-status').value, 
-                progress: document.getElementById('item-progress').value, 
-                startDate: document.getElementById('item-startDate').value,
-                endDate: document.getElementById('item-endDate').value,
-                image: imageValue,
-                description: document.getElementById('item-description').value, 
-                rating: parseInt(itemRatingInput.value, 10), 
-                tags: currentTags, 
-                moments: currentMoments 
-            };
+            const itemData = { name: document.getElementById('item-name').value, category: itemCategorySelect.value, status: document.getElementById('item-status').value, progress: document.getElementById('item-progress').value, image: document.getElementById('item-image').value, description: document.getElementById('item-description').value, rating: parseInt(itemRatingInput.value, 10), tags: currentTags, moments: currentMoments };
             if (id) { const index = mediaList.findIndex(i => i.id === id); mediaList[index] = { ...mediaList[index], ...itemData }; } else { mediaList.push({ id: Date.now().toString(), ...itemData }); }
             saveData(); renderItems(); closeModal(modals.form);
         });
@@ -523,14 +349,12 @@
         
         modals.details.addEventListener('click', e => {
             if (e.target.id === 'details-modal') { closeModal(modals.details); return; }
-            const targetButton = e.target.closest('button');
-            if (!targetButton) return;
+            const targetButton = e.target.closest('button'); if (!targetButton) return;
             if (targetButton.id === 'close-details-btn') closeModal(modals.details);
             else if (targetButton.id === 'edit-item-btn') { closeModal(modals.details); showFormModal(targetButton.dataset.id); }
             else if (targetButton.id === 'delete-item-btn') { showConfirmModal('تأكيد الحذف', 'هل أنت متأكد من رغبتك في حذف هذا العمل؟', () => { mediaList = mediaList.filter(item => item.id !== targetButton.dataset.id); saveData(); renderItems(); closeModal(modals.details); }); }
         });
-
-        // --- INITIALIZATION ---
+        
         const populateCategorySelect = () => { itemCategorySelect.innerHTML = ''; for (const key in categories) { const option = document.createElement('option'); option.value = key; option.textContent = categories[key]; itemCategorySelect.appendChild(option); } };
         const populateTagsDatalist = () => { const datalist = document.getElementById('default-tags-list'); defaultTags.forEach(tag => { const option = document.createElement('option'); option.value = tag; datalist.appendChild(option); }); };
         const initialize = () => { populateCategorySelect(); populateTagsDatalist(); renderTabs(); renderItems(); };
