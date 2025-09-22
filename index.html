@@ -118,17 +118,19 @@
                     <div><label for="item-status" class="block mb-2 text-sm font-medium text-gray-300">الحالة</label><select id="item-status" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="متوقف">متوقف</option><option value="متروك">متروك</option><option value="للمشاهدة">للمشاهدة/للقراءة</option></select></div>
                     <div><label for="item-progress" class="block mb-2 text-sm font-medium text-gray-300">التقدم</label><input type="text" id="item-progress" placeholder="مثال: الفصل 120" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
                     
-                    <!-- START: Tags Section (Moved Up) -->
+                    <!-- START: Tags Section (MODIFIED) -->
                     <div class="md:col-span-2">
                         <label for="item-tag-input" class="block mb-2 text-sm font-medium text-gray-300">الوسوم</label>
-                        <div class="relative flex gap-2">
-                            <input type="text" id="item-tag-input" list="default-tags-list" placeholder="أضف وسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring">
-                            <button type="button" id="add-tag-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">إضافة</button>
+                        <div class="relative" id="tag-input-container">
+                            <div class="flex gap-2">
+                                <input type="text" id="item-tag-input" placeholder="أضف وسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring" autocomplete="off">
+                                <button type="button" id="add-tag-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">إضافة</button>
+                            </div>
+                            <div id="tags-suggestions" class="absolute z-10 w-full bg-gray-600 rounded-md shadow-lg mt-1 hidden max-h-48 overflow-y-auto"></div>
                         </div>
-                        <datalist id="default-tags-list"></datalist>
                         <div id="item-tags-container" class="mt-3 flex flex-wrap gap-2"></div>
                     </div>
-                    <!-- END: Tags Section (Moved Up) -->
+                    <!-- END: Tags Section -->
 
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-sm font-medium text-gray-300">الصورة</label>
@@ -186,22 +188,6 @@
         const importFileInput = document.getElementById('import-file-input');
         const searchToggleBtn = document.getElementById('search-toggle-btn');
         const searchPanelContainer = document.getElementById('search-panel-container');
-
-        // START: Scroll fix for tag input on mobile
-        const tagInputForScroll = document.getElementById('item-tag-input');
-        const formModalContentForScroll = document.getElementById('form-modal-content');
-        if (tagInputForScroll && formModalContentForScroll) {
-            tagInputForScroll.addEventListener('focus', () => {
-                // On mobile, when the keyboard opens, scroll the input up to give space for the datalist.
-                setTimeout(() => {
-                    formModalContentForScroll.scrollTo({
-                        top: tagInputForScroll.offsetTop - 60, // Provides vertical space
-                        behavior: 'smooth'
-                    });
-                }, 300); // Timeout allows the keyboard to appear first
-            });
-        }
-        // END: Scroll fix
 
         const saveData = () => localStorage.setItem('mediaList', JSON.stringify(mediaList));
         const saveCategories = () => localStorage.setItem('categories', JSON.stringify(categories));
@@ -540,14 +526,55 @@
         });
         
         const populateCategorySelect = () => { const select = document.getElementById('item-category'); select.innerHTML = ''; for (const key in categories) { const option = document.createElement('option'); option.value = key; option.textContent = categories[key]; select.appendChild(option); } };
-        const populateTagsDatalist = () => { const datalist = document.getElementById('default-tags-list'); datalist.innerHTML = ''; defaultTags.forEach(tag => { const option = document.createElement('option'); option.value = tag; datalist.appendChild(option); }); };
-        const initialize = () => { populateCategorySelect(); populateTagsDatalist(); renderTabs(); renderItems(); };
+        
+        // START: Custom Tags Suggestions Logic
+        const tagInput = document.getElementById('item-tag-input');
+        const tagsSuggestions = document.getElementById('tags-suggestions');
+        const tagInputContainer = document.getElementById('tag-input-container');
+
+        tagInput.addEventListener('input', () => {
+            const filter = tagInput.value.toLowerCase();
+            tagsSuggestions.innerHTML = '';
+
+            if (!filter) {
+                tagsSuggestions.classList.add('hidden');
+                return;
+            }
+
+            const filteredTags = defaultTags.filter(tag => tag.toLowerCase().includes(filter));
+            
+            if (filteredTags.length > 0) {
+                filteredTags.forEach(tag => {
+                    const suggestionEl = document.createElement('div');
+                    suggestionEl.textContent = tag;
+                    suggestionEl.className = 'px-4 py-2 text-gray-200 cursor-pointer hover:bg-gray-500';
+                    suggestionEl.addEventListener('click', () => {
+                        tagInput.value = tag;
+                        tagsSuggestions.classList.add('hidden');
+                    });
+                    tagsSuggestions.appendChild(suggestionEl);
+                });
+                tagsSuggestions.classList.remove('hidden');
+            } else {
+                tagsSuggestions.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!tagInputContainer.contains(e.target)) {
+                 tagsSuggestions.classList.add('hidden');
+            }
+        });
+        // END: Custom Tags Suggestions Logic
+
+        const initialize = () => { 
+            populateCategorySelect(); 
+            renderTabs(); 
+            renderItems(); 
+        };
 
         initialize();
     });
     </script>
 </body>
 </html>
-
-
-
