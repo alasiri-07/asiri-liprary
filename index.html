@@ -41,6 +41,12 @@
         .search-panel-container.open {
             max-height: 500px;
         }
+        #item-favorite:checked + div {
+            @apply bg-blue-600;
+        }
+        #item-favorite:checked + div + div {
+            transform: translateX(1.5rem);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -103,7 +109,7 @@
                     <h2 id="modal-title" class="text-2xl font-bold text-white">إضافة عمل جديد</h2>
                     <label for="item-favorite" class="flex items-center cursor-pointer">
                         <span class="mr-3 text-sm font-medium text-gray-300">إضافة للمفضلة</span>
-                        <div class="relative"><input type="checkbox" id="item-favorite" class="sr-only"><div class="block bg-gray-600 w-14 h-8 rounded-full"></div><div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div></div>
+                        <div class="relative"><input type="checkbox" id="item-favorite" class="sr-only"><div class="block bg-gray-600 w-14 h-8 rounded-full transition-colors"></div><div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div></div>
                     </label>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -180,6 +186,22 @@
         const importFileInput = document.getElementById('import-file-input');
         const searchToggleBtn = document.getElementById('search-toggle-btn');
         const searchPanelContainer = document.getElementById('search-panel-container');
+
+        // START: Scroll fix for tag input on mobile
+        const tagInputForScroll = document.getElementById('item-tag-input');
+        const formModalContentForScroll = document.getElementById('form-modal-content');
+        if (tagInputForScroll && formModalContentForScroll) {
+            tagInputForScroll.addEventListener('focus', () => {
+                // On mobile, when the keyboard opens, scroll the input up to give space for the datalist.
+                setTimeout(() => {
+                    formModalContentForScroll.scrollTo({
+                        top: tagInputForScroll.offsetTop - 60, // Provides vertical space
+                        behavior: 'smooth'
+                    });
+                }, 300); // Timeout allows the keyboard to appear first
+            });
+        }
+        // END: Scroll fix
 
         const saveData = () => localStorage.setItem('mediaList', JSON.stringify(mediaList));
         const saveCategories = () => localStorage.setItem('categories', JSON.stringify(categories));
@@ -526,4 +548,6 @@
     </script>
 </body>
 </html>
+
+
 
