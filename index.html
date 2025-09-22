@@ -30,9 +30,6 @@
         .transition-all { transition: all 0.3s ease-in-out; }
         .focus-ring { @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75; }
         .tag { @apply bg-gray-600 text-gray-200 text-xs font-semibold mr-2 px-2.5 py-1 rounded-full; }
-        .dropdown-menu {
-            @apply absolute left-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg z-20 hidden ring-1 ring-black ring-opacity-5;
-        }
         .dropdown-item {
             @apply block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 w-full text-right flex items-center gap-3;
         }
@@ -66,7 +63,7 @@
                         <button id="settings-btn" class="text-gray-400 hover:text-white focus-ring rounded-full p-2">
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </button>
-                        <div id="settings-dropdown" class="dropdown-menu">
+                        <div id="settings-dropdown" class="absolute left-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg z-20 hidden ring-1 ring-black ring-opacity-5">
                             <button id="add-category-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg><span>إضافة تصنيف</span></button>
                             <button id="manage-categories-btn" class="dropdown-item"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg><span>إدارة التصنيفات</span></button>
                             <div class="border-t border-gray-600 my-1"></div>
@@ -115,6 +112,18 @@
                     <div><label for="item-status" class="block mb-2 text-sm font-medium text-gray-300">الحالة</label><select id="item-status" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="متوقف">متوقف</option><option value="متروك">متروك</option><option value="للمشاهدة">للمشاهدة/للقراءة</option></select></div>
                     <div><label for="item-progress" class="block mb-2 text-sm font-medium text-gray-300">التقدم</label><input type="text" id="item-progress" placeholder="مثال: الفصل 120" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></div>
                     
+                    <!-- START: Tags Section (Moved Up) -->
+                    <div class="md:col-span-2">
+                        <label for="item-tag-input" class="block mb-2 text-sm font-medium text-gray-300">الوسوم</label>
+                        <div class="relative flex gap-2">
+                            <input type="text" id="item-tag-input" list="default-tags-list" placeholder="أضف وسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring">
+                            <button type="button" id="add-tag-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">إضافة</button>
+                        </div>
+                        <datalist id="default-tags-list"></datalist>
+                        <div id="item-tags-container" class="mt-3 flex flex-wrap gap-2"></div>
+                    </div>
+                    <!-- END: Tags Section (Moved Up) -->
+
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-sm font-medium text-gray-300">الصورة</label>
                         <div class="flex items-center gap-4">
@@ -128,7 +137,6 @@
 
                     <div class="md:col-span-2"><label for="item-description" class="block mb-2 text-sm font-medium text-gray-300">الوصف</label><textarea id="item-description" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
                     <div class="md:col-span-2"><label class="block mb-2 text-sm font-medium text-gray-300">التقييم (من 10)</label><div id="item-rating-stars" class="flex items-center" dir="ltr"></div><input type="hidden" id="item-rating" value="0"></div>
-                    <div class="md:col-span-2"><label for="item-tag-input" class="block mb-2 text-sm font-medium text-gray-300">الوسوم</label><div class="flex gap-2"><input type="text" id="item-tag-input" list="default-tags-list" placeholder="أضف وسم..." class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"><button type="button" id="add-tag-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">إضافة</button></div><datalist id="default-tags-list"></datalist><div id="item-tags-container" class="mt-3 flex flex-wrap gap-2"></div></div>
                     
                     <div class="md:col-span-2 border-t border-gray-700 pt-4">
                         <h3 class="text-lg font-semibold mb-2 text-white">مواعيد النزول (اختياري)</h3>
@@ -510,7 +518,7 @@
         });
         
         const populateCategorySelect = () => { const select = document.getElementById('item-category'); select.innerHTML = ''; for (const key in categories) { const option = document.createElement('option'); option.value = key; option.textContent = categories[key]; select.appendChild(option); } };
-        const populateTagsDatalist = () => { const datalist = document.getElementById('default-tags-list'); defaultTags.forEach(tag => { const option = document.createElement('option'); option.value = tag; datalist.appendChild(option); }); };
+        const populateTagsDatalist = () => { const datalist = document.getElementById('default-tags-list'); datalist.innerHTML = ''; defaultTags.forEach(tag => { const option = document.createElement('option'); option.value = tag; datalist.appendChild(option); }); };
         const initialize = () => { populateCategorySelect(); populateTagsDatalist(); renderTabs(); renderItems(); };
 
         initialize();
