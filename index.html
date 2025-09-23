@@ -47,6 +47,12 @@
         #item-favorite:checked + div + div {
             transform: translateX(1.5rem);
         }
+        #item-negatives-spoiler:checked + div {
+            @apply bg-red-600;
+        }
+        #item-negatives-spoiler:checked + div + div {
+            transform: translateX(1rem);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -144,7 +150,20 @@
                     </div>
 
                     <div class="md:col-span-2"><label for="item-description" class="block mb-2 text-sm font-medium text-gray-300">الوصف</label><textarea id="item-description" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
-                    <div class="md:col-span-2"><label for="item-negatives" class="block mb-2 text-sm font-medium text-gray-300">سلبيات العمل</label><textarea id="item-negatives" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
+                    <div class="md:col-span-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="item-negatives" class="text-sm font-medium text-gray-300">سلبيات العمل</label>
+                            <label for="item-negatives-spoiler" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-xs font-medium text-gray-400">تحذير حرق</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="item-negatives-spoiler" class="sr-only">
+                                    <div class="block bg-gray-600 w-10 h-6 rounded-full transition-colors"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <textarea id="item-negatives" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea>
+                    </div>
                     <div class="md:col-span-2"><label class="block mb-2 text-sm font-medium text-gray-300">التقييم (من 10)</label><div id="item-rating-stars" class="flex items-center" dir="ltr"></div><input type="hidden" id="item-rating" value="0"></div>
                     
                     <div class="md:col-span-2 border-t border-gray-700 pt-4">
@@ -329,6 +348,7 @@
             const imageBase64Input = document.getElementById('item-image-base64');
             const imageUrlInput = document.getElementById('item-image-url');
             const favoriteCheckbox = document.getElementById('item-favorite');
+            const negativesSpoilerCheckbox = document.getElementById('item-negatives-spoiler');
             
             form.reset(); 
             imageBase64Input.value = '';
@@ -346,6 +366,7 @@
             document.getElementById('item-negatives').value = item?.negatives || '';
             document.getElementById('item-rating').value = item?.rating || 0;
             favoriteCheckbox.checked = item?.isFavorite || false;
+            negativesSpoilerCheckbox.checked = item?.negativesAreSpoiler || false;
             document.getElementById('item-release-day').value = item?.releaseDay ?? '';
             document.getElementById('item-release-time').value = item?.releaseTime || '';
 
@@ -375,7 +396,22 @@
             const ratingContainer = document.createElement('div'); renderStars(ratingContainer, item.rating, false);
             const tagsHtml = item.tags && item.tags.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">الوسوم:</h4><div class="flex flex-wrap gap-2">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></div>` : '';
             const momentsHtml = item.moments && item.moments.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">لحظات مهمة:</h4><ul class="list-disc list-inside space-y-2 text-gray-400">${item.moments.map(m => `<li><strong>${m.point || ''}:</strong> ${m.comment || ''}</li>`).join('')}</ul></div>` : '';
-            const negativesHtml = item.negatives ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">سلبيات العمل:</h4><p class="text-gray-400 whitespace-pre-wrap">${item.negatives}</p></div>` : '';
+            
+            const negativesHtml = item.negatives ? 
+                (item.negativesAreSpoiler ? 
+                    `<div class="mt-4">
+                        <h4 class="text-gray-300 font-semibold mb-2">سلبيات العمل:</h4>
+                        <div class="spoiler-container bg-gray-900 p-3 rounded-lg">
+                            <button class="spoiler-toggle text-red-400 hover:text-red-300 font-bold">⚠️ إظهار الحرق</button>
+                            <div class="spoiler-content hidden mt-2 text-gray-400 whitespace-pre-wrap">${item.negatives}</div>
+                        </div>
+                    </div>` :
+                    `<div class="mt-4">
+                        <h4 class="text-gray-300 font-semibold mb-2">سلبيات العمل:</h4>
+                        <p class="text-gray-400 whitespace-pre-wrap">${item.negatives}</p>
+                    </div>`
+                ) : '';
+
             const daysOfWeek = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
             let scheduleHtml = '';
             if (item.releaseDay) {
@@ -482,6 +518,7 @@
                 image: image, 
                 description: document.getElementById('item-description').value, 
                 negatives: document.getElementById('item-negatives').value,
+                negativesAreSpoiler: document.getElementById('item-negatives-spoiler').checked,
                 rating: parseInt(document.getElementById('item-rating').value, 10), 
                 isFavorite: document.getElementById('item-favorite').checked,
                 releaseDay: document.getElementById('item-release-day').value,
@@ -523,6 +560,17 @@
 
         modals.details.addEventListener('click', e => {
             if (e.target.id === 'details-modal') { closeModal(modals.details); return; }
+            
+            const spoilerToggle = e.target.closest('.spoiler-toggle');
+            if (spoilerToggle) {
+                const content = spoilerToggle.nextElementSibling;
+                if (content) {
+                    content.classList.toggle('hidden');
+                    spoilerToggle.textContent = content.classList.contains('hidden') ? '⚠️ إظهار الحرق' : 'إخفاء الحرق';
+                }
+                return;
+            }
+
             const targetButton = e.target.closest('button'); if (!targetButton) return;
             if (targetButton.id === 'close-details-btn') closeModal(modals.details);
             else if (targetButton.id === 'edit-item-btn') { closeModal(modals.details); showFormModal(targetButton.dataset.id); }
@@ -582,3 +630,4 @@
     </script>
 </body>
 </html>
+
