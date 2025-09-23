@@ -144,6 +144,7 @@
                     </div>
 
                     <div class="md:col-span-2"><label for="item-description" class="block mb-2 text-sm font-medium text-gray-300">الوصف</label><textarea id="item-description" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
+                    <div class="md:col-span-2"><label for="item-negatives" class="block mb-2 text-sm font-medium text-gray-300">سلبيات العمل</label><textarea id="item-negatives" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus-ring"></textarea></div>
                     <div class="md:col-span-2"><label class="block mb-2 text-sm font-medium text-gray-300">التقييم (من 10)</label><div id="item-rating-stars" class="flex items-center" dir="ltr"></div><input type="hidden" id="item-rating" value="0"></div>
                     
                     <div class="md:col-span-2 border-t border-gray-700 pt-4">
@@ -342,6 +343,7 @@
             document.getElementById('item-status').value = item?.status || 'جاري';
             document.getElementById('item-progress').value = item?.progress || '';
             document.getElementById('item-description').value = item?.description || '';
+            document.getElementById('item-negatives').value = item?.negatives || '';
             document.getElementById('item-rating').value = item?.rating || 0;
             favoriteCheckbox.checked = item?.isFavorite || false;
             document.getElementById('item-release-day').value = item?.releaseDay ?? '';
@@ -373,13 +375,14 @@
             const ratingContainer = document.createElement('div'); renderStars(ratingContainer, item.rating, false);
             const tagsHtml = item.tags && item.tags.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">الوسوم:</h4><div class="flex flex-wrap gap-2">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></div>` : '';
             const momentsHtml = item.moments && item.moments.length > 0 ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">لحظات مهمة:</h4><ul class="list-disc list-inside space-y-2 text-gray-400">${item.moments.map(m => `<li><strong>${m.point || ''}:</strong> ${m.comment || ''}</li>`).join('')}</ul></div>` : '';
+            const negativesHtml = item.negatives ? `<div class="mt-4"><h4 class="text-gray-300 font-semibold mb-2">سلبيات العمل:</h4><p class="text-gray-400 whitespace-pre-wrap">${item.negatives}</p></div>` : '';
             const daysOfWeek = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
             let scheduleHtml = '';
             if (item.releaseDay) {
                 const timeString = item.releaseTime ? ` الساعة ${new Date('1970-01-01T' + item.releaseTime).toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}`: '';
                 scheduleHtml = `<span class="bg-purple-900 text-purple-300 text-xs font-medium px-2.5 py-0.5 rounded">كل ${daysOfWeek[item.releaseDay]}${timeString}</span>`;
             }
-            detailsContent.innerHTML = `<div class="flex justify-between items-start mb-4"><h2 class="text-3xl font-bold text-white">${item.name}</h2><button id="close-details-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></div><div class="flex flex-col md:flex-row gap-6"><div class="md:w-1/3 flex-shrink-0"><img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';"></div><div class="md:w-2/3"><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">${categories[item.category] || 'غير مصنف'}</span><span class="bg-green-900 text-green-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.status}</span>${item.progress ? `<span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.progress}</span>` : ''}${scheduleHtml}</div><div class="flex items-center mb-4 gap-2"><strong class="text-gray-300">التقييم:</strong><div class="flex">${ratingContainer.innerHTML}</div></div><p class="text-gray-400 mb-4 whitespace-pre-wrap">${item.description || 'لا يوجد وصف.'}</p>${tagsHtml}${momentsHtml}</div></div><div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4"><button id="delete-item-btn" data-id="${item.id}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">حذف</button><button id="edit-item-btn" data-id="${item.id}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">تعديل</button></div>`;
+            detailsContent.innerHTML = `<div class="flex justify-between items-start mb-4"><h2 class="text-3xl font-bold text-white">${item.name}</h2><button id="close-details-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button></div><div class="flex flex-col md:flex-row gap-6"><div class="md:w-1/3 flex-shrink-0"><img src="${item.image || 'https://placehold.co/400x600/1f2937/6b7280?text=No+Image'}" alt="${item.name}" class="w-full rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x600/1f2937/6b7280?text=No+Image';"></div><div class="md:w-2/3"><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">${categories[item.category] || 'غير مصنف'}</span><span class="bg-green-900 text-green-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.status}</span>${item.progress ? `<span class="bg-yellow-900 text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded">${item.progress}</span>` : ''}${scheduleHtml}</div><div class="flex items-center mb-4 gap-2"><strong class="text-gray-300">التقييم:</strong><div class="flex">${ratingContainer.innerHTML}</div></div><p class="text-gray-400 mb-4 whitespace-pre-wrap">${item.description || 'لا يوجد وصف.'}</p>${negativesHtml}${tagsHtml}${momentsHtml}</div></div><div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4"><button id="delete-item-btn" data-id="${item.id}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">حذف</button><button id="edit-item-btn" data-id="${item.id}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg focus-ring">تعديل</button></div>`;
             openModal(modals.details);
         };
 
@@ -478,6 +481,7 @@
                 progress: document.getElementById('item-progress').value, 
                 image: image, 
                 description: document.getElementById('item-description').value, 
+                negatives: document.getElementById('item-negatives').value,
                 rating: parseInt(document.getElementById('item-rating').value, 10), 
                 isFavorite: document.getElementById('item-favorite').checked,
                 releaseDay: document.getElementById('item-release-day').value,
